@@ -23,6 +23,76 @@
 
 (provide 'dendroam)
 
+
+
+(defvar slug-trim-chars
+  '(?
+    ?\u0300 ; grave accent
+    ?\u0301 ; acute accent
+    ?\u0302 ; circumflex
+    ?\u0303 ; tilde
+    ?\u0304 ; macron
+    ?\u0305 ; overline
+    ?\u0306 ; breve
+    ?\u0307 ; dot above
+    ?\u0308 ; diaeresis
+    ?\u0309 ; hook above
+    ?\u030A ; ring above
+    ?\u030B ; double acute accent
+    ?\u030C ; caron
+    ?\u030D ; vertical line above
+    ?\u030E ; double vertical line above
+    ?\u030F ; double grave accent
+    ?\u0310 ; candrabindu
+    ?\u0311 ; inverted breve
+    ?\u0312 ; turned comma above
+    ?\u0313 ; comma above
+    ?\u0314 ; reversed comma above
+    ?\u0315 ; comma above right
+    ?\u0316 ; grave accent below
+    ?\u0317 ; acute accent below
+    ?\u0318 ; left tack below
+    ?\u0319 ; right tack below
+    ?\u031A ; left angle above
+    ?\u031B ; horn
+    ?\u031C ; left half ring below
+    ?\u031D ; up tack below
+    ?\u031E ; down tack below
+    ?\u031F ; plus sign below
+    ?\u0320 ; minus sign below
+    ?\u0321 ; palatalized hook below
+    ?\u0322 ; retroflex hook below
+    ?\u0323 ; dot below
+    ?\u0324 ; diaeresis below
+    ?\u0325 ; ring below
+    ?\u0326 ; comma below
+    ?\u0327 ; cedilla
+    ?\u0328 ; ogonek
+    ?\u0329 ; vertical line below
+    ?\u032A ; bridge below
+    ?\u032B ; inverted double arch below
+    ?\u032C ; caron below
+    ?\u032D ; circumflex below
+    ?\u032E ; breve below
+    ?\u032F ; inverted breve below
+    ?\u0330 ; tilde below
+    ?\u0331 ; macron below
+    ?\u0332 ; low line
+    ?\u0333 ; double low line
+    ?\u0334 ; tilde overlay
+    ?\u0335 ; short stroke overlay
+    ?\u0336 ; long stroke overlay
+    ?\u0337 ; short solidus overlay
+    ?\u0338 ; long solidus overlay
+    ?\u0339 ; right half ring below
+    ?\u033A ; inverted bridge below
+    ?\u033B ; square below
+    ?\u033C ; seagull below
+    ?\u033D ; x above
+    ?\u033E ; vertical tilde
+    ?\u033F ; double overline)
+    "List of Unicode characters to be removed when generating slugs."))
+
 (defvar dendroam-capture-templates
   '(("t" "Time note" entry
      "* %?"
@@ -149,13 +219,13 @@ this expects an input like: lang.elisp.what is nil
 and will create a file wih the name: lang.elisp.what-is-nil"
      (let ((title (org-roam-node-title node)))
        (cl-flet* ((nonspacing-mark-p (char)
-                                     (memq char org-roam-slug-trim-chars))
+                    (memq char slug-trim-chars))
                   (strip-nonspacing-marks (s)
-                                          (ucs-normalize-NFC-string
-                                           (apply #'string (seq-remove #'nonspacing-mark-p
-                                                                       (ucs-normalize-NFD-string s)))))
+                    (ucs-normalize-NFC-string
+                     (apply #'string (seq-remove #'nonspacing-mark-p
+                                                 (ucs-normalize-NFD-string s)))))
                   (cl-replace (title pair)
-                              (replace-regexp-in-string (car pair) (cdr pair) title)))
+                    (replace-regexp-in-string (car pair) (cdr pair) title)))
          (let* ((pairs `(("[^[:alnum:][:digit:]_.]" . "-")  ;; convert anything not alphanumeric except "."
                          (" " . "-")    ;; remove whitespaces
                          ("__*" . "-")  ;; remove sequential underscores
